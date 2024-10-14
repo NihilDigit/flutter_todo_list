@@ -526,11 +526,11 @@ class _MyHomePageState extends State<MyHomePage> {
       titleWidthFactor = (titleWidthFactor > 8) ? 8 : titleWidthFactor;
       titleWidthFactor = (titleWidthFactor < 3) ? 3 : titleWidthFactor;
       double wordsize = screenWidth * 0.5 / 10;
-      double cardWidth = wordsize * titleWidthFactor * 1.4;
+      double cardWidth = wordsize * titleWidthFactor * 2.5;
       // if (cardWidth < 100) cardWidth = 100; // 设置最小宽度
       // if (cardWidth > 350) cardWidth = 350; // 设置最大宽度
 
-      double expandedCardWidth = screenWidth * 0.6;
+      double expandedCardWidth = cardWidth * 1.6;
 
       Color _getDueDateColor(String dueDate) {
         DateTime dueDateTime = DateTime.parse(dueDate);
