@@ -443,9 +443,14 @@ class _MyHomePageState extends State<MyHomePage> {
       double screenWidth = MediaQuery.of(context).size.width;
 
       // 根据屏幕宽度动态调整卡片的最大宽度
-      double cardWidth = screenWidth * 0.4; // 卡片宽度为屏幕的 40%
-      if (cardWidth < 100) cardWidth = 100; // 设置最小宽度
-      if (cardWidth > 250) cardWidth = 250; // 设置最大宽度
+      int titleWidthFactor =
+          (todoItem.title != null) ? todoItem.title.length : 5;
+      titleWidthFactor = (titleWidthFactor > 8) ? 8 : titleWidthFactor;
+      titleWidthFactor = (titleWidthFactor < 3) ? 3 : titleWidthFactor;
+      double wordsize = screenWidth * 0.5 / 10;
+      double cardWidth = wordsize * titleWidthFactor * 1.4;
+      // if (cardWidth < 100) cardWidth = 100; // 设置最小宽度
+      // if (cardWidth > 350) cardWidth = 350; // 设置最大宽度
 
       double expandedCardWidth = screenWidth * 0.6;
 
@@ -478,14 +483,15 @@ class _MyHomePageState extends State<MyHomePage> {
                     children: [
                       // 标题的 Padding
                       Padding(
-                        padding: const EdgeInsets.only(right: 36.0), // 右边距 36
+                        padding: EdgeInsets.only(
+                            right: 36, left: isExpanded ? 48 : 0.0), // 右边距 36
                         child: Text(
                           todoItem.title,
                           softWrap: true, // 允许换行
                           maxLines: null, // 允许多行显示
                           overflow: TextOverflow.visible, // 确保文本不会被截断
                           style: TextStyle(
-                            fontSize: 18.0,
+                            fontSize: 16.0,
                             color: Colors.deepPurple,
                             fontWeight: FontWeight.bold, // 加粗标题
                           ),
@@ -501,7 +507,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           maxLines: isExpanded ? 5 : 1, // 显示详细描述
                           overflow: TextOverflow.ellipsis, // 超出时显示省略号
                           style: TextStyle(
-                            fontSize: 14.0,
+                            fontSize: 12.0,
                             color: Colors.blueGrey,
                           ),
                         ),
