@@ -523,7 +523,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
       // 根据屏幕宽度动态调整卡片的最大宽度
       int titleWidthFactor =
-          (todoItem.title != null) ? todoItem.title.length : 4;
+          (todoItem.title.length < 4) ? todoItem.title.length : 4;
       titleWidthFactor = (titleWidthFactor > 7) ? 7 : titleWidthFactor;
       titleWidthFactor = (titleWidthFactor < 4) ? 4 : titleWidthFactor;
       double wordsize = screenWidth * 0.5 / 10;
