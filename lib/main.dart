@@ -31,13 +31,16 @@ class TodoItem {
   String title;
   bool isCompleted;
   String detail;
+  String? dueDate;
 
   // 构造函数，根据传入的数据创建对象
-  TodoItem(
-      {this.id,
-      required this.title,
-      this.isCompleted = false,
-      this.detail = ''});
+  TodoItem({
+    this.id,
+    required this.title,
+    this.isCompleted = false,
+    this.detail = '',
+    this.dueDate,
+  });
 
   // 将 TodoItem 对象转换成 Map 对象来存储
   Map<String, dynamic> toMap() {
@@ -46,6 +49,7 @@ class TodoItem {
       'title': title,
       'isCompleted': isCompleted ? 1 : 0,
       'detail': detail,
+      'due_date': dueDate,
     };
   }
 
@@ -58,6 +62,7 @@ class TodoItem {
       isCompleted: map['isCompleted'] ==
           1, // 由于 SQLite 不存在布尔型，用 isCompleted == 1 来代替 True
       detail: map['detail'] ?? '',
+      dueDate: map['due_date'],
     );
   }
 
@@ -93,23 +98,27 @@ class DatabaseHelper {
     String dbPath = path.join(await getDatabasesPath(),
         '.todo_database.db'); // 在该系统默认存放数据库文件的路径存放 todo_database.db
     return await openDatabase(
-      // 如果已经存在，打开数据库，否则创建一个新文件
-      dbPath, // 上面获取的数据库存储路径
-      version: 2, // 数据库的版本号，根据后续迭代可以修改
-      onCreate: (db, version) {
-        // 如果是新创建的 db 文件，执行脚本
-        return db.execute(
-          //需要注意的是， SQLite 并不支持布尔类型，此处用 integer 来存储 isCompleted
-          '''
+        // 如果已经存在，打开数据库，否则创建一个新文件
+        dbPath, // 上面获取的数据库存储路径
+        version: 3, // 数据库的版本号，根据后续迭代可以修改
+        onCreate: (db, version) {
+      // 如果是新创建的 db 文件，执行脚本
+      return db.execute(
+        //需要注意的是， SQLite 并不支持布尔类型，此处用 integer 来存储 isCompleted
+        '''
           CREATE TABLE todos(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT,
             isCompleted INTEGER,
             detail TEXT)
           ''',
-        );
-      },
-    );
+      );
+    }, onUpgrade: (db, oldVersion, newVersion) async {
+      if (oldVersion < 3) {
+        await db.execute(
+            'ALTER TABLE todos ADD COLUMN due_date TEXT DEFAULT \'2001-01-01\'');
+      }
+    });
   }
 
   // 以下是对数据库操作方法的封装
@@ -183,10 +192,12 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   // 添加新任务
-  void _addTodoItem(String title, String detail) async {
+  void _addTodoItem(String title, String detail, String? dueDate) async {
     TodoItem newItem = TodoItem(
-        title: title,
-        detail: detail); // 创建一个 task 为标题的 TodoItem， id 和 isCompleted 保持默认
+      title: title,
+      detail: detail,
+      dueDate: dueDate,
+    ); // 创建一个 task 为标题的 TodoItem， id 和 isCompleted 保持默认
     await _dbHelper
         .insertTodoItem(newItem); // 将这个 TodoItem 插入数据库，这时候通过数据库操作赋予了 pk
     _loadTodoItems(); // 重新加载任务列表
@@ -215,6 +226,8 @@ class _MyHomePageState extends State<MyHomePage> {
     TextEditingController controllerTitle = TextEditingController();
     TextEditingController controllerDetail = TextEditingController();
 
+    String? dueDate;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -235,6 +248,21 @@ class _MyHomePageState extends State<MyHomePage> {
                 decoration: InputDecoration(
                     hintText: '输入待办描述', prefixIcon: Icon(Icons.description)),
               ),
+              SizedBox(height: 10),
+              TextButton(
+                  onPressed: () async {
+                    DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2100),
+                        initialDate: DateTime.now());
+                    if (pickedDate != null) {
+                      setState(() {
+                        dueDate = pickedDate.toIso8601String().split('T').first;
+                      });
+                    }
+                  },
+                  child: Text(dueDate == null ? '选择截止日期' : '截止日期：$dueDate'))
             ],
           ),
           actions: [
@@ -256,7 +284,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 if (title.isNotEmpty) {
                   // 添加新的 TodoItem
-                  _addTodoItem(title, detail); // 假设 _addTodoItem 也支持 detail 参数
+                  _addTodoItem(title, detail, dueDate);
                 }
 
                 Navigator.of(context).pop(); // 关闭对话框
@@ -275,6 +303,11 @@ class _MyHomePageState extends State<MyHomePage> {
     TextEditingController controller_detail =
         TextEditingController(text: todoItem.detail);
 
+    // 用于存储用户选择的日期，如果用户没有选择新日期，则使用原来的 dueDate
+    DateTime? selectedDate = todoItem.dueDate != null
+        ? DateTime.parse(todoItem.dueDate!) // 如果有 dueDate，将其解析为 DateTime
+        : null;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -286,14 +319,48 @@ class _MyHomePageState extends State<MyHomePage> {
               TextField(
                 controller: controller_title,
                 decoration: InputDecoration(
-                    hintText: '输入新标题', prefixIcon: Icon(Icons.title)),
+                  hintText: '输入新标题',
+                  prefixIcon: Icon(Icons.title),
+                ),
               ),
               SizedBox(height: 10),
               TextField(
                 controller: controller_detail,
                 decoration: InputDecoration(
-                    hintText: '输入新描述', prefixIcon: Icon(Icons.description)),
-              )
+                  hintText: '输入新描述',
+                  prefixIcon: Icon(Icons.description),
+                ),
+              ),
+              SizedBox(height: 10),
+              Row(
+                children: [
+                  Icon(Icons.calendar_today, color: Colors.grey),
+                  SizedBox(width: 8),
+                  Text(
+                    selectedDate != null
+                        ? '截止日期: ${selectedDate!.toLocal()}'.split(' ')[0]
+                        : '选择截止日期',
+                    style: TextStyle(color: Colors.blueGrey),
+                  ),
+                  Spacer(),
+                  TextButton(
+                    onPressed: () async {
+                      // 弹出日期选择器
+                      DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: selectedDate ?? DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2100),
+                      );
+                      if (pickedDate != null) {
+                        // 用户选择了新日期，更新 selectedDate
+                        selectedDate = pickedDate;
+                      }
+                    },
+                    child: Text('选择日期'),
+                  ),
+                ],
+              ),
             ],
           ),
           actions: [
@@ -312,17 +379,28 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () async {
                 String newTitle = controller_title.text;
                 String newDetail = controller_detail.text;
+
+                // 更新标题
                 if (newTitle.isNotEmpty) {
-                  // 更新 TodoItem 的 title
                   todoItem.title = newTitle;
-                  await _dbHelper.updateTodoItem(todoItem); // 更新数据库中的值
-                  _loadTodoItems(); // 刷新任务列表
                 }
+
+                // 更新描述
                 if (newDetail.isNotEmpty) {
                   todoItem.detail = newDetail;
-                  await _dbHelper.updateTodoItem(todoItem);
-                  _loadTodoItems();
                 }
+
+                // 更新截止日期
+                if (selectedDate != null) {
+                  todoItem.dueDate = selectedDate!
+                      .toIso8601String()
+                      .split('T')[0]; // 存储为 'YYYY-MM-DD' 格式
+                }
+
+                // 更新数据库中的值
+                await _dbHelper.updateTodoItem(todoItem);
+                _loadTodoItems(); // 刷新任务列表
+
                 Navigator.of(context).pop(); // 关闭对话框
               },
               child: Text('保存'),
@@ -454,6 +532,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
       double expandedCardWidth = screenWidth * 0.6;
 
+      Color _getDueDateColor(String dueDate) {
+        DateTime dueDateTime = DateTime.parse(dueDate);
+
+        if (dueDateTime.isBefore(DateTime.now())) {
+          return Colors.red;
+        } else {
+          return Colors.lightGreen;
+        }
+      }
+
       return GestureDetector(
         onTap: () {
           setState(() {
@@ -479,12 +567,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Padding(
                   padding: const EdgeInsets.all(16.0), // 整体的通用 padding
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: isExpanded
+                        ? CrossAxisAlignment.center
+                        : CrossAxisAlignment.start,
                     children: [
                       // 标题的 Padding
                       Padding(
-                        padding: EdgeInsets.only(
-                            right: 36, left: isExpanded ? 48 : 0.0), // 右边距 36
+                        padding: EdgeInsets.only(right: 36), // 右边距 36
                         child: Text(
                           todoItem.title,
                           softWrap: true, // 允许换行
@@ -498,6 +587,24 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       SizedBox(height: 5),
+                      if (todoItem.dueDate != null && isExpanded)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.calendar_today,
+                              size: 12,
+                              color: _getDueDateColor(todoItem.dueDate!),
+                            ),
+                            Text(
+                              ' 截止到：${todoItem.dueDate}',
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  color: _getDueDateColor(todoItem.dueDate!)),
+                            ),
+                            SizedBox(width: cardWidth * 0.2)
+                          ],
+                        ),
                       // 详细描述的 Padding
                       Padding(
                         padding: const EdgeInsets.only(right: 16.0), // 右边距 8
