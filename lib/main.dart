@@ -166,6 +166,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   late List<Widget> _pages;
 
+  Map<int, bool> _expandedStates = {};
+
   @override
   void initState() {
     super.initState();
@@ -434,26 +436,37 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // 构建单个待办事项项
   Widget _buildTodoItem(TodoItem todoItem) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // 获取屏幕的宽度
-        double screenWidth = MediaQuery.of(context).size.width;
+    bool isExpanded = _expandedStates[todoItem.id] ?? false;
 
-        // 根据屏幕宽度动态调整卡片的最大宽度
-        double cardWidth = screenWidth * 0.4; // 卡片宽度为屏幕的 40%
-        if (cardWidth < 100) cardWidth = 100; // 设置最小宽度
-        if (cardWidth > 250) cardWidth = 250; // 设置最大宽度
+    return LayoutBuilder(builder: (context, constraints) {
+      // 获取屏幕的宽度
+      double screenWidth = MediaQuery.of(context).size.width;
 
-        return ConstrainedBox(
+      // 根据屏幕宽度动态调整卡片的最大宽度
+      double cardWidth = screenWidth * 0.4; // 卡片宽度为屏幕的 40%
+      if (cardWidth < 100) cardWidth = 100; // 设置最小宽度
+      if (cardWidth > 250) cardWidth = 250; // 设置最大宽度
+
+      double expandedCardWidth = screenWidth * 0.8;
+
+      return GestureDetector(
+        onTap: () {
+          setState(() {
+            _expandedStates[todoItem.id!] = !isExpanded;
+          });
+        },
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
           constraints: BoxConstraints(
-            minWidth: 100, // 限制卡片的最小宽度
-            maxWidth: cardWidth, // 根据屏幕宽度动态调整卡片的最大宽度
+            minWidth: 100,
+            maxWidth: isExpanded ? expandedCardWidth : cardWidth,
           ),
           child: Stack(
             children: [
               // 卡片内容
               Card(
-                elevation: 4.0,
+                elevation: isExpanded ? 12.0 : 4.0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0), // 设置圆角
                 ),
@@ -480,12 +493,12 @@ class _MyHomePageState extends State<MyHomePage> {
                       SizedBox(height: 5),
                       // 详细描述的 Padding
                       Padding(
-                        padding: const EdgeInsets.only(right: 8.0), // 右边距 8
+                        padding: const EdgeInsets.only(right: 16.0), // 右边距 8
                         child: Text(
                           todoItem.detail,
                           softWrap: true,
-                          maxLines: 3, // 最多显示三行详细描述
-                          overflow: TextOverflow.ellipsis, // 超出三行时显示省略号
+                          maxLines: isExpanded ? 3 : 1, // 显示详细描述
+                          overflow: TextOverflow.ellipsis, // 超出时显示省略号
                           style: TextStyle(
                             fontSize: 14.0,
                             color: Colors.blueGrey,
@@ -501,7 +514,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 right: 8, // 距离右边 0 像素
                 top: 8, // 距离顶部 0 像素
                 child: PopupMenuButton<String>(
-                  iconSize: 24, // 图标大小
+                  iconSize: isExpanded ? 24 : 0, // 图标大小
                   onSelected: (value) {
                     // 根据选择的值执行操作
                     if (value == 'Edit') {
@@ -528,8 +541,8 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ],
           ),
-        );
-      },
-    );
+        ),
+      );
+    });
   }
 }
