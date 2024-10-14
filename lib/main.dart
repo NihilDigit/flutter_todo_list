@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'LXGWWenKaiMono',
         primarySwatch: Colors.blue,
       ),
+      // themeMode: ThemeMode.system,
       home: MyHomePage(),
     );
   }
@@ -452,10 +453,10 @@ class _MyHomePageState extends State<MyHomePage> {
     return SingleChildScrollView(
       // 使用 SingleChildScrollView 使待办事项可以滚动
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(8.0),
         child: Wrap(
-          spacing: 16.0,
-          runSpacing: 16.0,
+          spacing: 8.0,
+          runSpacing: 8.0,
           children:
               _todoItems.map((todoItem) => _buildTodoItem(todoItem)).toList(),
         ),
@@ -522,15 +523,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
       // 根据屏幕宽度动态调整卡片的最大宽度
       int titleWidthFactor =
-          (todoItem.title != null) ? todoItem.title.length : 5;
-      titleWidthFactor = (titleWidthFactor > 8) ? 8 : titleWidthFactor;
-      titleWidthFactor = (titleWidthFactor < 3) ? 3 : titleWidthFactor;
+          (todoItem.title != null) ? todoItem.title.length : 4;
+      titleWidthFactor = (titleWidthFactor > 7) ? 7 : titleWidthFactor;
+      titleWidthFactor = (titleWidthFactor < 4) ? 4 : titleWidthFactor;
       double wordsize = screenWidth * 0.5 / 10;
-      double cardWidth = wordsize * titleWidthFactor * 2.5;
+      double cardWidth = wordsize * titleWidthFactor * 1.8;
       // if (cardWidth < 100) cardWidth = 100; // 设置最小宽度
       // if (cardWidth > 350) cardWidth = 350; // 设置最大宽度
 
-      double expandedCardWidth = cardWidth * 1.6;
+      double expandedCardWidth = cardWidth * 1.4;
 
       Color _getDueDateColor(String dueDate) {
         DateTime dueDateTime = DateTime.parse(dueDate);
@@ -551,7 +552,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: AnimatedContainer(
           duration: Duration(milliseconds: 300),
           curve: Curves.easeInOut,
-          padding: EdgeInsets.all(isExpanded ? 16.0 : 8.0),
+          padding: EdgeInsets.all(isExpanded ? 6.0 : 4.0),
           constraints: BoxConstraints(
             minWidth: 100,
             maxWidth: isExpanded ? expandedCardWidth : cardWidth,
@@ -560,12 +561,12 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               // 卡片内容
               Card(
-                elevation: isExpanded ? 12.0 : 4.0,
+                elevation: isExpanded ? 16.0 : 4.0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0), // 设置圆角
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0), // 整体的通用 padding
+                  padding: const EdgeInsets.all(12.0), // 整体的通用 padding
                   child: Column(
                     crossAxisAlignment: isExpanded
                         ? CrossAxisAlignment.center
@@ -573,14 +574,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     children: [
                       // 标题的 Padding
                       Padding(
-                        padding: EdgeInsets.only(right: 36), // 右边距 36
+                        padding: EdgeInsets.only(right: 24), // 右边距 36
                         child: Text(
                           todoItem.title,
                           softWrap: true, // 允许换行
                           maxLines: null, // 允许多行显示
                           overflow: TextOverflow.visible, // 确保文本不会被截断
                           style: TextStyle(
-                            fontSize: 16.0,
+                            fontSize: isExpanded ? 17.0 : 16.0,
                             color: Colors.deepPurple,
                             fontWeight: FontWeight.bold, // 加粗标题
                           ),
@@ -593,28 +594,27 @@ class _MyHomePageState extends State<MyHomePage> {
                           children: [
                             Icon(
                               Icons.calendar_today,
-                              size: 12,
+                              size: isExpanded ? 13 : 12,
                               color: _getDueDateColor(todoItem.dueDate!),
                             ),
                             Text(
-                              ' 截止到：${todoItem.dueDate}',
+                              ' ${todoItem.dueDate}',
                               style: TextStyle(
-                                  fontSize: 10,
+                                  fontSize: isExpanded ? 11 : 10,
                                   color: _getDueDateColor(todoItem.dueDate!)),
                             ),
-                            SizedBox(width: cardWidth * 0.2)
                           ],
                         ),
                       // 详细描述的 Padding
                       Padding(
-                        padding: const EdgeInsets.only(right: 16.0), // 右边距 8
+                        padding: const EdgeInsets.only(right: 16.0),
                         child: Text(
-                          todoItem.detail,
+                          isExpanded ? '  ${todoItem.detail}' : todoItem.detail,
                           softWrap: true,
                           maxLines: isExpanded ? 5 : 1, // 显示详细描述
                           overflow: TextOverflow.ellipsis, // 超出时显示省略号
                           style: TextStyle(
-                            fontSize: 12.0,
+                            fontSize: isExpanded ? 13.0 : 12.0,
                             color: Colors.blueGrey,
                           ),
                         ),
@@ -625,10 +625,10 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               // PopupMenuButton 悬浮在右上角
               Positioned(
-                right: 8, // 距离右边 0 像素
-                top: 8, // 距离顶部 0 像素
+                right: 0, // 距离右边 0 像素
+                top: 0, // 距离顶部 0 像素
                 child: PopupMenuButton<String>(
-                  iconSize: isExpanded ? 24 : 0, // 图标大小
+                  iconSize: isExpanded ? 20 : 0, // 图标大小
                   onSelected: (value) {
                     // 根据选择的值执行操作
                     if (value == 'Edit') {
