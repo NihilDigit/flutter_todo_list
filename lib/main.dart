@@ -447,7 +447,7 @@ class _MyHomePageState extends State<MyHomePage> {
       if (cardWidth < 100) cardWidth = 100; // 设置最小宽度
       if (cardWidth > 250) cardWidth = 250; // 设置最大宽度
 
-      double expandedCardWidth = screenWidth * 0.8;
+      double expandedCardWidth = screenWidth * 0.6;
 
       return GestureDetector(
         onTap: () {
@@ -458,6 +458,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: AnimatedContainer(
           duration: Duration(milliseconds: 300),
           curve: Curves.easeInOut,
+          padding: EdgeInsets.all(isExpanded ? 16.0 : 8.0),
           constraints: BoxConstraints(
             minWidth: 100,
             maxWidth: isExpanded ? expandedCardWidth : cardWidth,
@@ -497,7 +498,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: Text(
                           todoItem.detail,
                           softWrap: true,
-                          maxLines: isExpanded ? 3 : 1, // 显示详细描述
+                          maxLines: isExpanded ? 5 : 1, // 显示详细描述
                           overflow: TextOverflow.ellipsis, // 超出时显示省略号
                           style: TextStyle(
                             fontSize: 14.0,
