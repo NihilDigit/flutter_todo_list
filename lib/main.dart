@@ -11,8 +11,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Todo List',
       theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         fontFamily: 'LXGWWenKaiMono',
-        primarySwatch: Colors.blue,
+        useMaterial3: true,
       ),
       home: HomeScreen(),
     );

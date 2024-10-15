@@ -40,14 +40,14 @@ class TodoItemWidget extends StatelessWidget {
               minWidth: 100,
               maxWidth: isExpanded ? expandedCardWidth : cardWidth,
             ),
-            child: _buildCard(),
+            child: _buildCard(context),
           );
         },
       ),
     );
   }
 
-  Widget _buildCard() {
+  Widget _buildCard(BuildContext context) {
     return Stack(
       children: [
         Card(
@@ -62,10 +62,9 @@ class TodoItemWidget extends StatelessWidget {
                   ? CrossAxisAlignment.center
                   : CrossAxisAlignment.start,
               children: [
-                _buildTitle(),
+                _buildTitle(context),
                 SizedBox(height: 5),
                 if (todoItem.dueDate != null && isExpanded) _buildDueDate(),
-                _buildDetail(),
               ],
             ),
           ),
@@ -75,7 +74,7 @@ class TodoItemWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildTitle() {
+  Widget _buildTitle(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(right: 24),
       child: Text(
@@ -85,7 +84,7 @@ class TodoItemWidget extends StatelessWidget {
         overflow: TextOverflow.visible,
         style: TextStyle(
           fontSize: isExpanded ? 17.0 : 16.0,
-          color: Colors.deepPurple,
+          color: Theme.of(context).colorScheme.primary,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -116,13 +115,13 @@ class TodoItemWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(right: 16.0),
       child: Text(
-        isExpanded ? '  ${todoItem.detail}' : todoItem.detail,
+        isExpanded ? '    ${todoItem.detail}' : todoItem.detail,
         softWrap: true,
         maxLines: isExpanded ? 5 : 1,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
           fontSize: isExpanded ? 13.0 : 12.0,
-          color: Colors.blueGrey,
+          // color: Colors.blueGrey,
         ),
       ),
     );
@@ -153,8 +152,6 @@ class TodoItemWidget extends StatelessWidget {
 
   Color _getDueDateColor(String dueDate) {
     DateTime dueDateTime = DateTime.parse(dueDate);
-    return dueDateTime.isBefore(DateTime.now())
-        ? Colors.red
-        : Colors.lightGreen;
+    return dueDateTime.isBefore(DateTime.now()) ? Colors.red : Colors.green;
   }
 }

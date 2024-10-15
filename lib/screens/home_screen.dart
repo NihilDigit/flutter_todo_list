@@ -31,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 2:
         return '设置';
       default:
-        return '待办事项';
+        return 'Something went wrong...';
     }
   }
 
@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: '设置')
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.deepPurple,
+        // selectedItemColor: Colors.deepPurple,
         onTap: _onItemTapped,
       ),
     );
