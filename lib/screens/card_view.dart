@@ -159,10 +159,11 @@ class _CardViewState extends State<CardView> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _buildTodoList(),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
+        label: Text('添加待办'),
         onPressed: _pushAddTodoScreen,
         tooltip: '添加待办',
-        child: Icon(Icons.add),
+        icon: Icon(Icons.edit),
       ),
     );
   }

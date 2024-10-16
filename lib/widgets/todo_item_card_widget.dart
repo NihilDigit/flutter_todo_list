@@ -25,11 +25,10 @@ class TodoItemWidget extends StatelessWidget {
         builder: (context, constraints) {
           double screenWidth = MediaQuery.of(context).size.width;
           int titleWidthFactor =
-              (todoItem.title.length < 4) ? todoItem.title.length : 4;
-          titleWidthFactor = (titleWidthFactor > 7) ? 7 : titleWidthFactor;
-          titleWidthFactor = (titleWidthFactor < 4) ? 4 : titleWidthFactor;
+              (todoItem.title.length < 6) ? todoItem.title.length : 6;
+          titleWidthFactor = (titleWidthFactor > 12) ? 12 : titleWidthFactor;
           double wordsize = screenWidth * 0.5 / 10;
-          double cardWidth = wordsize * titleWidthFactor * 1.8;
+          double cardWidth = wordsize * titleWidthFactor * 2.4;
           double expandedCardWidth = cardWidth * 1.4;
 
           return AnimatedContainer(
@@ -37,7 +36,6 @@ class TodoItemWidget extends StatelessWidget {
             curve: Curves.easeInOut,
             padding: EdgeInsets.all(isExpanded ? 6.0 : 4.0),
             constraints: BoxConstraints(
-              minWidth: 100,
               maxWidth: isExpanded ? expandedCardWidth : cardWidth,
             ),
             child: _buildCard(context),
@@ -70,7 +68,7 @@ class TodoItemWidget extends StatelessWidget {
             ),
           ),
         ),
-        _buildPopupMenu(),
+        if (isExpanded) _buildPopupMenu(),
       ],
     );
   }
@@ -108,6 +106,7 @@ class TodoItemWidget extends StatelessWidget {
             color: _getDueDateColor(todoItem.dueDate!),
           ),
         ),
+        SizedBox(width: 20)
       ],
     );
   }
@@ -122,7 +121,6 @@ class TodoItemWidget extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
           fontSize: isExpanded ? 13.0 : 12.0,
-          // color: Colors.blueGrey,
         ),
       ),
     );
@@ -133,7 +131,7 @@ class TodoItemWidget extends StatelessWidget {
       right: 0,
       top: 0,
       child: PopupMenuButton<String>(
-        iconSize: isExpanded ? 20 : 0,
+        iconSize: 20,
         onSelected: (value) {
           if (value == 'Edit') {
             onEdit(todoItem);

@@ -57,6 +57,7 @@ class TodoItemWidget extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(left: 16, right: 48),
       child: Text(
+        style: TextStyle(fontSize: 12.0),
         todoItem.detail,
         softWrap: true,
         maxLines: 5, // 限制详情最多显示两行
