@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'card_view.dart';
 import 'timeline_view.dart';
-import 'settings_view.dart';
+// import 'settings_view.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -13,7 +13,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _pages = [
     CardView(),
     TimelineView(),
-    SettingsView(),
+    // SettingsView(),
   ];
 
   void _onItemTapped(int index) {
@@ -28,8 +28,8 @@ class _HomeScreenState extends State<HomeScreen> {
         return '卡片视图';
       case 1:
         return '时间轴视图';
-      case 2:
-        return '设置';
+      // case 2:
+      //   return '设置';
       default:
         return 'Something went wrong...';
     }
@@ -52,10 +52,9 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.timeline),
             label: '时间轴视图',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: '设置')
+          // BottomNavigationBarItem(icon: Icon(Icons.settings), label: '设置')
         ],
         currentIndex: _selectedIndex,
-        // selectedItemColor: Colors.deepPurple,
         onTap: _onItemTapped,
       ),
     );

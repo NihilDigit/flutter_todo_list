@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/todo_item.dart';
 import '../helpers/database_helper.dart';
-import '../widgets/todo_item_widget.dart';
+import '../widgets/todo_item_card_widget.dart';
 
 class CardView extends StatefulWidget {
   @override

@@ -65,6 +65,7 @@ class TodoItemWidget extends StatelessWidget {
                 _buildTitle(context),
                 SizedBox(height: 5),
                 if (todoItem.dueDate != null && isExpanded) _buildDueDate(),
+                _buildDetail(),
               ],
             ),
           ),
